@@ -8,7 +8,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # keep track of what we build for the README
 pkgentries=(); nixpkgentries=();
 cache="nixpkgs-wayland";
-build_attr="${1:-"all"}"
 
 up=0 # updated_performed # up=$(( $up + 1 ))
 
@@ -18,6 +17,8 @@ function update() {
 
   metadata="${pkg}/metadata.nix"
   pkgname="$(basename "${pkg}")"
+
+  [[ ! -f "${metadata}" ]] && return
 
   branch="$(nix eval --raw -f "${metadata}" branch)"
   rev="$(nix eval --raw -f "${metadata}" rev)"
@@ -41,7 +42,7 @@ function update() {
       repo="$(nix eval --raw -f "${metadata}" repo_hg)"
       newrev="$(hg identify "${repo}" -r "${branch}")"
     fi
-    
+
     if [[ "${rev}" != "${newrev}" ]]; then
       up=$(( $up + 1 ))
 
@@ -58,10 +59,10 @@ function update() {
 
       # Update Sha256
       # TODO: nix-prefetch without NIX_PATH?
-      if [[ "${typ}" == "pkgs" ]]; then
+      if [[ "${typ}" == "pkgs-"* ]]; then
         newsha256="$(NIX_PATH=nixpkgs=https://github.com/nixos/nixpkgs/archive/nixos-unstable.tar.gz \
           nix-prefetch \
-            -E "(import ./build.nix).nixosUnstable.${pkgname}" \
+            -E "(import ./build.nix).${typ}.${pkgname}" \
             --rev "${newrev}" \
             --output raw)"
       elif [[ "${typ}" == "nixpkgs" ]]; then
@@ -81,28 +82,43 @@ function update() {
   if [[ "${skip}" == "true" ]]; then
     newdate="${newdate} (pinned)"
   fi
-  if [[ "${typ}" == "pkgs" ]]; then
-    desc="$(nix eval --raw "(import ./build.nix).nixosUnstable.${pkgname}.meta.description")"
-    home="$(nix eval --raw "(import ./build.nix).nixosUnstable.${pkgname}.meta.homepage")"
+  if [[ "${typ}" == "pkgs-"* ]]; then
+    desc="$(nix eval --raw "(import ./build.nix).${typ}.${pkgname}.meta.description")"
+    home="$(nix eval --raw "(import ./build.nix).${typ}.${pkgname}.meta.homepage")"
     pkgentries=("${pkgentries[@]}" "| [${pkgname}](${home}) | ${newdate} | ${desc} |");
   elif [[ "${typ}" == "nixpkgs" ]]; then
     nixpkgentries=("${nixpkgentries[@]}" "| ${pkgname} | ${newdate} |");
   fi
 }
 
-function update_readme() {
-  replace="$(printf "<!--pkgs-->")"
+function update_readme_pkgs-chromium() {
+  replace="$(printf "<!--pkgs-chromium-->")"
+  replace="$(printf "%s\n| Package | Last Update | Description |" "${replace}")"
+  replace="$(printf "%s\n| ------- | ----------- | ----------- |" "${replace}")"
+  d="$(nix eval --raw -f "${metadata}" rev)"
+  p="chromium | $d | chromium (ozone) (wayland)"
+  replace="$(printf "%s\n%s\n" "${replace}" "${p}")"
+  replace="$(printf "%s\n<!--pkgs-chromium-->" "${replace}")"
+
+  rg --multiline "(?s)(.*)<!--pkgs-chromium-->(.*)<!--pkgs-chromium-->(.*)" "README.md" \
+    --replace "\$1${replace}\$3" \
+      > README2.md; mv README2.md README.md
+}
+function update_readme_pkgs-wayland() {
+  replace="$(printf "<!--pkgs-wayland-->")"
   replace="$(printf "%s\n| Package | Last Update | Description |" "${replace}")"
   replace="$(printf "%s\n| ------- | ----------- | ----------- |" "${replace}")"
   for p in "${pkgentries[@]}"; do
     replace="$(printf "%s\n%s\n" "${replace}" "${p}")"
   done
-  replace="$(printf "%s\n<!--pkgs-->" "${replace}")"
+  replace="$(printf "%s\n<!--pkgs-wayland-->" "${replace}")"
 
-  rg --multiline '(?s)(.*)<!--pkgs-->(.*)<!--pkgs-->(.*)' "README.md" \
+  rg --multiline "(?s)(.*)<!--pkgs-wayland-->(.*)<!--pkgs-wayland-->(.*)" "README.md" \
     --replace "\$1${replace}\$3" \
       > README2.md; mv README2.md README.md
+}
 
+function update_readme_nixpkgs() {
   replace="$(printf "<!--nixpkgs-->")"
   replace="$(printf "%s\n| Channel | Last Channel Commit Time |" "${replace}")"
   replace="$(printf "%s\n| ------- | ------------------------ |" "${replace}")"
@@ -117,31 +133,42 @@ function update_readme() {
       > README2.md; mv README2.md README.md
 }
 
-for p in nixpkgs/*; do
-  update "nixpkgs" "${p}"
-done
+function cache_build() {
+  cachix push -w "${cache}" &
+  CACHIX_PID="$!"
+  trap "kill ${CACHIX_PID}" EXIT
 
-for p in pkgs/*; do
-  update "pkgs" "${p}"
-done
+  nix-build build.nix \
+    --no-out-link --keep-going \
+    --attr "${1}" \
+    | cachix push "${cache}"
+}
 
-update_readme
+function run() {
+  for p in nixpkgs/*; do
+    update "nixpkgs" "${p}"
+  done
 
-cachix push -w "${cache}" &
-CACHIX_PID="$!"
-trap "kill ${CACHIX_PID}" EXIT
+  for p in pkgs-wayland/*; do
+    update "pkgs-wayland" "${p}"
+  done
 
-#if [[ $up -lt 1 ]]; then
-  # if we didn't update any revs, there's nothing to do
-  # don't bother building (and if on CI, dling everything for no reason)
+  # TODO: why is the set necessary?
+  set +e; version="$(git ls-remote --tag https://github.com/chromium/chromium | cut -d'	' -f2 | \
+    rg ".*/(\d+\.\d+\.\d+\.\d+)" -r '$1' | sort -hr | head -1)"; set -e
 
-  # TODO: maybe on CI we can invoke nix in a way to do a no-op if subsitutions exist
-  # TODO: file a bug for this, see if there was any irc convo after asking on 2019-11-18@00:40:33
-#  echo "nothing to build, so exitting"
-#  exit 0
-#fi
+  echo "{ version = \"${version}\"; }" > "./pkgs-chromium/chromium-git/metadata.nix"
+  if [[ ! -f "pkgs-chromium/chromium-git/vendor-${version}.nix" ]]; then
+    (cd pkgs-chromium/chromium-git; ./mk-vendor-file.pl "${version}";)
+  fi
 
-nix-build build.nix \
-  --no-out-link --keep-going \
-  --attr "${build_attr}" \
-  | cachix push "${cache}"
+  cache_build "waylandPkgs"
+  cache_build "chromiumPkgs"
+
+  update_readme_nixpkgs
+  update_readme_pkgs-chromium
+  update_readme_pkgs-wayland
+}
+
+run
+

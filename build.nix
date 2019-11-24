@@ -1,10 +1,10 @@
 let
-  # TODO: convert to callPackages and non-overlay style? more reliable and usable by others, but can cause more pkg dupe?
-  nixosUnstable = (import (import ./nixpkgs/nixos-unstable) { overlays = [ (import ./default.nix) ]; }).waylandPkgs;
-  nixpkgsUnstable = (import (import ./nixpkgs/nixpkgs-unstable) { overlays = [ (import ./default.nix) ]; }).waylandPkgs;
+  nixpkgs = (import (import ./nixpkgs/nixos-unstable) { overlays = [ (import ./default.nix) ]; });
+  pkgs-wayland = nixpkgs.waylandPkgs;
+  pkgs-chromium = nixpkgs.chromiumPkgs;
 in
   {
-    all = [ nixosUnstable nixpkgsUnstable ];
-    inherit nixosUnstable nixpkgsUnstable;
+    all = [ pkgs-wayland pkgs-chromium ];
+    inherit pkgs-wayland pkgs-chromium;
   }
 

@@ -15,33 +15,38 @@
 
 Automated, pre-built packages for Wayland (sway/wlroots) tools for NixOS.
 
-Note that hese packages can also be used on Ubuntu, to some extent. See [the Ubuntu demo](docs/sway-on-ubuntu) for more information.
+Note, `chromium-git-ozone` is now available!
 
-Packages from this overlay are regularly updated and built against `nixos-unstable` and `nixpkgs-unstable`. They are published to the binary cache on Cachix. Usage instructions are available on the Cachix page: [`nixpkgs-wayland` on cachix](https://nixpkgs-wayland.cachix.org).
+Packages in this overlay are built against `nixos-unstable` and published via binary cache via Cachix. Usage instructions are available on the Cachix page: [`nixpkgs-wayland` on cachix](https://nixpkgs-wayland.cachix.org).
 
 These packages were mostly recently built against:
 <!--nixpkgs-->
 | Channel | Last Channel Commit Time |
 | ------- | ------------------------ |
 | nixos-unstable | 2019-12-05 01:28:43 +0100 |
-| nixpkgs-unstable | 2019-12-05 09:39:52 +0100 |
 <!--nixpkgs-->
 
-## Packages
+## Packages (Chromium)
+<!--pkgs-chromium-->
+| Package | Last Update | Description |
+| ------- | ----------- | ----------- |
+chromium | 13076d0c10613e9ae73e61dd82b24ae9a6529667 | chromium (ozone) (wayland)
+<!--pkgs-chromium-->
 
-<!--pkgs-->
+## Packages (Wayland)
+<!--pkgs-wayland-->
 | Package | Last Update | Description |
 | ------- | ----------- | ----------- |
 | [bspwc](https://git.sr.ht/~bl4ckb0ne/bspwc) | 2019-10-14 14:41:16 -0400 (pinned) | Binary space partitioning wayland compositor |
 | [cage](https://www.hjdskes.nl/projects/cage/) | 2019-08-27 18:14:57 +0200 | A Wayland kiosk |
 | [drm_info](https://github.com/ascent12/drm_info) | 2019-11-03 00:15:05 +0000 | Small utility to dump info about DRM devices. |
-| [freerdp](http://www.freerdp.com/) | 2019-12-06 07:53:37 +0100 | A Remote Desktop Protocol Client |
+| [freerdp](http://www.freerdp.com/) | 2019-12-09 11:43:02 +0100 | A Remote Desktop Protocol Client |
 | [gebaar-libinput](https://github.com/Coffee2CodeNL/gebaar-libinput) | 2019-04-05 15:27:03 +0200 | Gebaar, A Super Simple WM Independent Touchpad Gesture Daemon for libinput |
 | [glpaper](https://bitbucket.org/Scoopta/glpaper) | 2019-03-08 16:52 -0800 | GLPaper is a wallpaper program for wlroots based wayland compositors such as sway that allows you to render glsl shaders as your wallpaper |
 | [grim](https://github.com/emersion/grim) | 2019-07-20 19:11:00 +0300 | Select a region in a Wayland compositor |
 | [i3status-rust](https://github.com/greshake/i3status-rust) | 2019-12-08 17:58:58 -0500 | Very resource-friendly and feature-rich replacement for i3status |
 | [imv](https://github.com/eXeC64/imv) | 2019-11-23 14:19:17 +0000 | A command line image viewer for tiling window managers |
-| [kanshi](https://github.com/emersion/kanshi) | 2019-12-06 10:50:10 +0100 | Dynamic display configuration |
+| [kanshi](https://github.com/emersion/kanshi) | 2019-12-09 11:15:03 +0100 | Dynamic display configuration |
 | [mako](https://wayland.emersion.fr/mako) | 2019-11-29 19:40:30 +0100 | A lightweight Wayland notification daemon |
 | [neatvnc](https://github.com/any1/neatvnc) | 2019-10-20 22:13:51 +0000 | liberally licensed VNC server library that's intended to be fast and neat |
 | [oguri](https://github.com/vilhalmer/oguri) | 2019-11-30 18:19:22 -0500 | A very nice animated wallpaper tool for Wayland compositors |
@@ -61,19 +66,17 @@ These packages were mostly recently built against:
 | [wev](https://swaywm.org) | 2019-08-11 17:24:26 +0900 | Sway's idle management daemon |
 | [wf-config](https://github.com/WayfireWM/wf-config) | 2019-10-08 00:06:02 +0300 | A library for managing configuration files, written for wayfire |
 | [wf-recorder](https://github.com/ammen99/wf-recorder) | 2019-12-01 22:36:39 +0100 | Utility program for screen recording of wlroots-based compositors |
-| [wl-clipboard](https://github.com/bugaevc/wl-clipboard) | 2019-10-03 15:16:09 +0300 | Select a region in a Wayland compositor |
 | [wlay](https://github.com/atx/wlay) | 2019-07-04 19:03:15 +0200 | Graphical output management for Wayland |
+| [wl-clipboard](https://github.com/bugaevc/wl-clipboard) | 2019-10-03 15:16:09 +0300 | Select a region in a Wayland compositor |
 | [wldash](https://wldash.org) | 2019-10-05 22:43:09 +0200 | Wayland launcher/dashboard |
-| [wlr-randr](https://github.com/emersion/wlr-randr) | 2019-03-22 16:38:05 +0200 | An xrandr clone for wlroots compositors |
 | [wlrobs](https://sr.ht/~scoopta/wlrobs) | 2019-03-16 15:06 -0700 | wlrobs is an obs-studio plugin that allows you to screen capture on wlroots based wayland compositors |
 | [wlroots](https://github.com/swaywm/wlroots) | 2019-12-05 10:49:04 -0500 | A modular Wayland compositor library |
+| [wlr-randr](https://github.com/emersion/wlr-randr) | 2019-03-22 16:38:05 +0200 | An xrandr clone for wlroots compositors |
 | [wltrunk](https://git.sr.ht/~bl4ckb0ne/wltrunk) | 2019-11-10 16:09:56 -0500 (pinned) | High-level Wayland compositor library based on wlroots |
 | [wofi](https://hg.sr.ht/~scoopta/wofi) | 2019-08-17 18:34 -0700 | Wofi is a launcher/menu program for wlroots based wayland compositors such as sway |
 | [wtype](https://github.com/atx/wtype) | 2019-07-01 17:33:04 +0200 | xdotool type for wayland |
 | [xdg-desktop-portal-wlr](https://github.com/emersion/xdg-desktop-portal-wlr) | 2019-07-24 19:38:20 +0300 | xdg-desktop-portal backend for wlroots |
-<!--pkgs-->
-
-</details>
+<!--pkgs-wayland-->
 
 ## Usage
 
