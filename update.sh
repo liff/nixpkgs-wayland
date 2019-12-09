@@ -162,8 +162,8 @@ function run() {
     (cd pkgs-chromium/chromium-git; ./mk-vendor-file.pl "${version}";)
   fi
 
-  cache_build "waylandPkgs"
-  cache_build "chromiumPkgs"
+  cache_build "pkgs-wayland"
+  cache_build "pkgs-chromium"
 
   update_readme_nixpkgs
   update_readme_pkgs-chromium
