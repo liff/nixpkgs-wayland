@@ -36,6 +36,8 @@ waylandPkgs = rec {
   wtype            = pkgs.callPackage ./pkgs/wtype {};
   xdg-desktop-portal-wlr = pkgs.callPackage ./pkgs/xdg-desktop-portal-wlr {};
 
+  sommelier = pkgs.callPackage ./pkgs/sommelier {};
+
   gtk-layer-shell = pkgs.callPackage ./pkgs/gtk-layer-shell {};
 
   wlroots-tmp = pkgs.callPackage ./pkgs-temp/wlroots {};
