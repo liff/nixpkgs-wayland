@@ -43,6 +43,16 @@ waylandPkgs = rec {
   wlroots-tmp = pkgs.callPackage ./pkgs-temp/wlroots {};
   wlroots-0-9-x = pkgs.callPackage ./pkgs-temp/wlroots-0-9-x {};
 
+  # wxrc
+  wxrc = pkgs.callPackage ./pkgs/wxrc {
+    openxr-loader = pkgs.callPackage ./pkgs-temp/openxr-loader-wxrc {};
+    wlroots = wlroots-0-9-x;
+  };
+
+  # temporary, will upstream to nixpkgs
+  # temporary-temporarily disabled to test my nixpkgs change in local nixpkgs
+  cglm = pkgs.callPackage ./pkgs-temp/cglm {};
+
   # misc
   redshift-wayland = pkgs.callPackage ./pkgs/redshift-wayland {
     inherit (pkgs.python3Packages) python pygobject3 pyxdg wrapPython;
