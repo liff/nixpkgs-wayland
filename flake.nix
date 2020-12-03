@@ -119,7 +119,7 @@
           nativeBuildInputs = []
             ++ (with pkgs_.cachix.${system}; [ cachix ])
             ++ (with pkgs_.nixpkgs.${system}; [
-                nixUnstable nix-prefetch nix-build-uncached
+                nixUnstable nix-prefetch nix-build-uncached niv
                 bash cacert curl git jq mercurial openssh ripgrep
             ])
           ;

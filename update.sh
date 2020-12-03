@@ -157,3 +157,11 @@ if [[ "${JOB_ID:-""}" != "" ]]; then
   echo "we're building on sr.ht, pushing..."
   git push origin HEAD
 fi
+
+
+
+# niv experiment
+
+r=$(cat flake.lock | jq -r .nodes.nixpkgs.locked.rev)
+niv update nixpkgs -b $r # yes, -b is intentional, I don't want niv to update on any sort of branch for nixpkgs
+
